@@ -1,26 +1,29 @@
-import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import firebase from 'firebase';
+import React, {Component} from 'react'
+import { connect } from 'react-redux'
+import firebase from "firebase";
 import Lib from '../static/address_lib';
 import Account from '../components/Account';
 
+
 import Router from 'next/router';
+
 
 class AddressShow extends Component {
   style = {
-    fontSize: "12pt",
-    padding: "5px 10px"
+    fontSize:"12pt",
+    padding:"5px 10px"
   }
+
 
   constructor(props) {
     super(props);
-    if (this.props.login == false) {
+    if (this.props.login == false){
       Router.push('/address');
     }
     this.state = {
-      last: -1,
-      input: '',
-      email: Router.query.email,
+      last:-1,
+      input:'',
+      email:Router.query.email,
       address:null,
       message:Router.query.email + 'のデータ'
     }
@@ -29,16 +32,18 @@ class AddressShow extends Component {
     this.doAction = this.doAction.bind(this);
   }
 
-  logined() {
+
+  // login,logout処理
+  logined(){
     console.log('logined');
   }
-
-  logouted() {
+  logouted(){
     Router.push('/address');
   }
 
-  //アドレスデータの検索
-  getAddress(email) {
+
+  // アドレスデータの検索
+  getAddress(email){
     let db = firebase.database();
     let ref0 = db.ref('address/'
       + Lib.encodeEmail(this.props.email)
@@ -47,44 +52,55 @@ class AddressShow extends Component {
     let ref = db.ref('address/'
       + Lib.encodeEmail(this.props.email));
     let self = this;
-    ref.orderByKey().equalTo(Lib.encodeEmail(email)).on('value', (snapshot)=>{
-      for(let i in snapshot.val()) {
-        let d = Lib.deepcopy(snapshot.val()[i]);
-        self.setState({
-          address:d
-        });
-        break;
-      }
-    });
+    ref.orderByKey()
+      .equalTo(Lib.encodeEmail(email))
+      .on('value', (snapshot)=>{
+        for(let i in snapshot.val()){
+          let d = Lib.deepcopy(snapshot.val()[i]);
+          self.setState({
+            address:d
+          });
+          break;
+        }
+      });
   }
 
-  //フィールド入力
-  doChange(e) {
+
+  // フィールド入力
+  doChange(e){
     this.setState({
       input:e.target.value
     });
   }
-  doAction() {
+
+
+  // メッセージ送信処理
+  doAction(){
     let from = Lib.encodeEmail(this.props.email);
     let to = Lib.encodeEmail(this.state.email);
     let db = firebase.database();
     let d = new Date().getTime();
-    let ref =　db.ref('address/' + from + '/' + to + '/messages/' + d);
+    let ref = db.ref('address/' + from + '/' + to
+      + '/messages/' + d);
     ref.set('to: ' + this.state.input);
-    let ref2 = db.ref('address/' + to + '/' + from + '/messages/' + d);
+    let ref2 = db.ref('address/' + to + '/' + from
+      + '/messages/' + d);
     ref2.set('from: ' + this.state.input);
-    let ref3 = db.ref('address/' + to + '/' + from + '/check/');
+    let ref3 = db.ref('address/' + to + '/' + from
+      + '/check/');
     ref3.set(true);
-    this.setState({ input: ''})
+    this.setState({ input:''})
   }
 
-  render() {
-    if (this.state.address == null) {
+
+  // レンダリング
+  render(){
+    if (this.state.address == null){
       this.getAddress(Router.query.email);
     }
     let items = [];
-    if (this.state.address != null) {
-      for(let n in this.state.address.messages) {
+    if (this.state.address != null){
+      for(let n in this.state.address.messages){
         items.unshift(<li key={n}>
           {this.state.address.messages[n]}
         </li>);
@@ -92,16 +108,17 @@ class AddressShow extends Component {
     }
     return (
       <div>
-        <Account onLogined={this.logined} onLogouted={this.logouted} />
+        <Account onLogined={this.logined}
+          onLogouted={this.logouted} />
         <p>{this.state.message}</p>
-        <hr />
+        <hr/>
         {this.state.address != null
         ?
         <table>
           <tbody>
             <tr>
               <th>NAME</th>
-              <td>{this.state.email}</td>
+              <td>{this.state.address.name}</td>
             </tr>
             <tr>
               <th>MAIL</th>
@@ -122,15 +139,18 @@ class AddressShow extends Component {
         }
         <hr />
         <fieldset>
-          <p>Message: </p>
-          <input type="text" size="40" value={this.state.input} onChange={this.doChange} />
+          <p>Message:</p>
+          <input type="text" size="40"
+            value={this.state.input}
+            onChange={this.doChange} />
           <button onClick={this.doAction}>send</button>
         </fieldset>
-        {this.state.address != null && this.state.address.messages != null
+        {this.state.address != null &&
+          this.state.address.messages != null
         ?
         <div>
-          <p>※{this.state.address.name}さんとのメッセージ</p>
-          <ul>{items}</ul>
+        <p>※{this.state.address.name}さんとのメッセージ</p>
+        <ul>{items}</ul>
         </div>
         :
         <p>※メッセージはありません。</p>
@@ -138,7 +158,8 @@ class AddressShow extends Component {
       </div>
     );
   }
-}
 
-AddressShow = connect((state)=>state)(AddressShow);
+
+}
+AddressShow = connect((state)=> state)(AddressShow);
 export default AddressShow;
