@@ -158,8 +158,6 @@ class AddressShow extends Component {
       </div>
     );
   }
-
-
 }
 AddressShow = connect((state)=> state)(AddressShow);
 export default AddressShow;
