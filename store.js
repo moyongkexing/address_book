@@ -14,7 +14,7 @@ var config = {
   measurementId: "G-33XWHTJXSL"
 };
 
-//Firebaseの初期化
+// Firebase初期化
 var fireapp;
 try {
   fireapp = firebase.initializeApp(config);
@@ -23,27 +23,32 @@ try {
 }
 export default fireapp;
 
+
+// ステート初期値
 const initial = {
-  login: false,
-  username: '(click here!)',
-  email: '',
-  data: [],
-  items: []
+  login:false,
+  username:'(click here!)',
+  email:'',
+  data:[],
+  items:[]
 }
 
-//レデューサー
-function fireReducer(state = initial, action) {
+
+// レデューサー
+function fireReducer(state = intitial, action) {
   switch (action.type) {
-    //ダミー
+    // ダミー
     case 'UPDATE_USER':
       return action.value;
-    //デフォルト
+    // デフォルト
     default:
       return state;
   }
 }
 
-//initStore関数
+
+// initStore関数
 export function initStore(state = initial) {
-  return createStore(fireReducer, state, applyMiddleware(thunkMiddleware))
+  return createStore(fireReducer, state,
+    applyMiddleware(thunkMiddleware))
 }
